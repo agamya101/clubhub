@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% from "_macros.html" import seat_bar, status_chip %}
+{% block title %}{{ ev.title }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="row" style="gap:8px">
+      <span class="chip {{ ev.club_category }}"><a href="{{ url_for('public.club', club_id=ev.club_id) }}" style="color:inherit">{{ ev.club_name }}</a></span>
+      <span class="chip plain">{{ ev.event_type }}</span>
+      {{ status_chip(ev.status) }}
+    </div>
+    <h1 style="margin-top:8px">{{ ev.title }}</h1>
+  </div>
+  <div class="actions">
+    {% if ev.status == 'Upcoming' %}
+      {% if is_student() %}
+        {% if registered %}
+          <form method="post" action="{{ url_for('student.cancel', event_id=ev.event_id) }}" onsubmit="return confirm('Cancel your registration?')"><button class="btn">Cancel registration</button></form>
+        {% elif ev.seats_left > 0 %}
+          <form method="post" action="{{ url_for('student.register', event_id=ev.event_id) }}"><button class="btn primary lg">Register</button></form>
+        {% else %}<button class="btn lg" disabled>Full</button>{% endif %}
+      {% elif not current_user %}
+        <a class="btn primary lg" href="{{ url_for('auth.login', next=request.path) }}">Sign in to register</a>
+      {% endif %}
+    {% endif %}
+    {% if can_manage_club(ev.club_id) %}<a class="btn dark" href="{{ url_for('manage.resource_edit', club_id=ev.club_id, resource='events', pk=ev.event_id) }}">Edit</a>{% endif %}
+  </div>
+</div>
+
+<div class="grid" style="grid-template-columns: minmax(0,2fr) minmax(280px,1fr)">
+  <div class="stack min0">
+    <div class="card">
+      <h3>About this event</h3>
+      <p style="margin-top:8px;white-space:pre-line">{{ ev.description or 'No description provided.' }}</p>
+    </div>
+    {% if registrants is not none %}
+    <div class="card flush">
+      <div class="card-head"><h3>Registered students ({{ registrants | length }})</h3>
+        {% if can_manage_club(ev.club_id) %}<a class="btn sm" href="{{ url_for('manage.registrations', club_id=ev.club_id, event_id=ev.event_id) }}">Manage</a>{% endif %}</div>
+      <div class="table-wrap"><table class="data">
+        <thead><tr><th>Name</th><th>Roll no</th><th>Branch</th><th>Email</th><th>Registered</th></tr></thead>
+        <tbody>{% for r in registrants %}<tr><td>{{ r.name }}</td><td class="mono">{{ r.roll_no }}</td><td>{{ r.branch }}-{{ r.year }}</td><td>{{ r.email }}</td><td class="nowrap">{{ r.registered_at | dt }}</td></tr>
+        {% else %}<tr><td colspan="5" class="empty">No registrations yet.</td></tr>{% endfor %}</tbody>
+      </table></div>
+    </div>
+    {% endif %}
+  </div>
+  <aside class="card" style="align-self:start">
+    <dl class="kv">
+      <dt>When</dt><dd class="strong">{{ ev.event_date | dt }}</dd>
+      <dt>Venue</dt><dd>{{ ev.venue }}</dd>
+      <dt>Deadline</dt><dd>{% if ev.registration_deadline %}{{ ev.registration_deadline | date }}{% else %}Until the event starts{% endif %}</dd>
+      <dt>Seats</dt><dd>{{ seat_bar(ev) }}<span class="tiny muted">{{ ev.registered }} of {{ ev.capacity }} taken</span></dd>
+    </dl>
+  </aside>
+</div>
+{% endblock %}

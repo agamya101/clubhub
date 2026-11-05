@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}ClubHub{% endblock %} · ClubHub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="{{ url_for('public.home') }}"><span class="brand-mark">C</span>ClubHub</a>
+    <button class="btn ghost sm menu-toggle" id="menu-toggle" aria-label="Menu">☰</button>
+    <nav class="topnav" id="topnav">
+      <a href="{{ url_for('public.clubs') }}" class="{{ 'active' if request.endpoint in ('public.clubs','public.club') }}">Societies</a>
+      <a href="{{ url_for('public.events') }}" class="{{ 'active' if request.endpoint in ('public.events','public.event') }}">Events</a>
+      <a href="{{ url_for('public.notices') }}" class="{{ 'active' if request.endpoint == 'public.notices' }}">Notices</a>
+      {% if current_user %}
+        {% if is_admin() %}
+          <a href="{{ url_for('admin.dashboard') }}" class="{{ 'active' if request.blueprint in ('admin','manage') }}">Admin</a>
+        {% elif is_faculty() %}
+          <a href="{{ url_for('faculty.dashboard') }}" class="{{ 'active' if request.blueprint == 'faculty' }}">Advisor panel</a>
+        {% else %}
+          <a href="{{ url_for('student.dashboard') }}" class="{{ 'active' if request.endpoint == 'student.dashboard' }}">My dashboard</a>
+          {% if head_clubs %}<a href="{{ url_for('manage.index') }}" class="{{ 'active' if request.blueprint == 'manage' }}">Manage club</a>{% endif %}
+        {% endif %}
+      {% endif %}
+    </nav>
+    <div class="topbar-right">
+      {% if current_user %}
+        <div class="user-chip">
+          <span class="avatar">{{ (current_user.name or current_user.username) | initials }}</span>
+          <span>
+            <span class="name strong small">{{ current_user.name or current_user.username }}</span>
+            <span class="role">{{ 'Club head' if head_clubs else current_user.role }}</span>
+          </span>
+        </div>
+        <form method="post" action="{{ url_for('auth.logout') }}"><button class="btn sm ghost">Sign out</button></form>
+      {% else %}
+        <a class="btn sm dark" href="{{ url_for('auth.login') }}">Sign in</a>
+      {% endif %}
+    </div>
+  </div>
+</header>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="flashes" id="flashes">
+      {% for cat, msg in messages %}<div class="flash {{ cat }}">{{ msg }}</div>{% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+{% block body %}
+<main class="page">{% block content %}{% endblock %}</main>
+{% endblock %}
+
+<footer class="site">
+  <div class="inner">
+    <span>ClubHub · Student Club & Organisation Management System</span>
+    <span>SQLite · 16 tables · BCNF · DBMS mini-project</span>
+  </div>
+</footer>
+<script>
+  document.getElementById('menu-toggle')?.addEventListener('click', () => document.getElementById('topnav').classList.toggle('open'));
+  setTimeout(() => document.getElementById('flashes')?.remove(), 4500);
+</script>
+</body>
+</html>

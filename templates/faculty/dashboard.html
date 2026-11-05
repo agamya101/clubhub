@@ -1,0 +1,42 @@
+{% extends "faculty/_layout.html" %}
+{% from "_macros.html" import event_card %}
+{% block title %}Advisor panel{% endblock %}
+{% block panel %}
+<div class="page-head">
+  <div><div class="eyebrow">{{ me.designation }} · {{ me.department }}</div><h1>Advisor panel</h1></div>
+</div>
+
+<div class="grid grid-3">
+  <div class="stat"><div class="num">{{ clubs | length }}</div><div class="lbl">clubs advised</div></div>
+  <div class="stat"><div class="num">{{ clubs | sum(attribute='member_count') }}</div><div class="lbl">students across them</div></div>
+  <div class="stat"><div class="num">{{ flags | length }}</div><div class="lbl">items needing attention</div></div>
+</div>
+
+<section class="section">
+  <div class="section-head"><h2>Needs attention</h2><span class="muted small">Generated from live data</span></div>
+  <div class="stack" style="gap:8px">
+    {% for level, cid, cname, text, link in flags %}
+    <div class="flag {{ level }}"><i></i><div class="min0"><div class="club">{{ cname }}</div>{{ text }}</div><a class="btn sm" href="{{ link }}">Open</a></div>
+    {% else %}<div class="card empty"><b>All clear</b>Nothing flagged for your clubs right now.</div>{% endfor %}
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head"><h2>Your clubs</h2></div>
+  <div class="grid auto-fill">
+    {% for c in clubs %}
+    <a class="club-card" href="{{ url_for('faculty.club', club_id=c.club_id) }}">
+      <div class="row spread"><span class="mark {{ c.category }}">{{ c.name | initials }}</span><span class="chip {{ c.category }}">{{ c.category }}</span></div>
+      <h3>{{ c.name }}</h3>
+      <div class="tag">President: {{ c.president_name or '—' }}</div>
+      <div class="meta"><span><b>{{ c.member_count }}</b> members</span><span><b>{{ c.upcoming_events }}</b> upcoming</span><span><b>{{ c.total_funding | inr }}</b></span></div>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head"><h2>Upcoming across your clubs</h2></div>
+  {% if upcoming %}<div class="grid grid-2">{% for e in upcoming %}{{ event_card(e) }}{% endfor %}</div>{% else %}<div class="card empty">No upcoming events.</div>{% endif %}
+</section>
+{% endblock %}

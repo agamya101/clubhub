@@ -1,0 +1,27 @@
+{% extends "admin/_layout.html" %}
+{% block title %}SQL console{% endblock %}
+{% block panel %}
+<div class="page-head"><div><div class="eyebrow">Read-only · SELECT only · 200 rows max</div><h1>SQL console</h1></div></div>
+
+<div class="grid" style="grid-template-columns: minmax(0,1fr) 300px">
+  <form method="post" class="card form min0">
+    <div class="field"><label for="sql">Query</label><textarea id="sql" name="sql" class="sql-area" spellcheck="false" placeholder="SELECT * FROM v_club_summary;">{{ sql }}</textarea></div>
+    <div class="btn-row"><button class="btn primary">Run</button><span class="tiny muted">Views: v_club_summary · v_event_seats · v_club_funding_by_year</span></div>
+  </form>
+  <div class="card tight">
+    <div class="eyebrow" style="margin-bottom:8px">Sample queries</div>
+    <div class="stack" style="gap:4px">
+      {% for name, q in samples.items() %}<button type="button" class="btn sm ghost" style="justify-content:flex-start;white-space:normal;text-align:left" onclick="document.getElementById('sql').value = {{ q | tojson }}">{{ name }}</button>{% endfor %}
+    </div>
+  </div>
+</div>
+
+{% if error %}<div class="errors" style="margin-top:16px">{{ error }}</div>{% endif %}
+{% if columns %}
+<div class="card flush table-wrap" style="margin-top:16px">
+  <table class="data"><thead><tr>{% for c in columns %}<th>{{ c }}</th>{% endfor %}</tr></thead>
+  <tbody>{% for r in rows %}<tr>{% for v in r %}<td class="{{ 'num' if v is number }}">{{ v if v is not none else '∅' }}</td>{% endfor %}</tr>{% else %}<tr><td colspan="{{ columns | length }}" class="empty">No rows.</td></tr>{% endfor %}</tbody></table>
+</div>
+<p class="tiny muted" style="margin-top:8px">{{ rows | length }} row{{ 's' if rows | length != 1 }}</p>
+{% endif %}
+{% endblock %}
