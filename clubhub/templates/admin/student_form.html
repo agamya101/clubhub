@@ -1,0 +1,24 @@
+{% extends "admin/_layout.html" %}
+{% from "_macros.html" import error_list %}
+{% block title %}{{ 'Edit' if row and row.student_id else 'New' }} student{% endblock %}
+{% block panel %}
+{% set v = row or {} %}
+<div class="page-head"><div><div class="eyebrow">Person ⇒ Student</div><h1>{{ 'Edit student' if v.student_id else 'New student' }}</h1></div></div>
+<form method="post" class="card form cols" style="max-width:820px">
+  {{ error_list(errors) }}
+  <div class="full eyebrow">Person (supertype)</div>
+  <div class="field"><label for="name">Full name <span class="req">*</span></label><input id="name" name="name" value="{{ v.name or '' }}" required></div>
+  <div class="field"><label for="email">Email <span class="req">*</span></label><input id="email" name="email" type="email" value="{{ v.email or '' }}" required></div>
+  <div class="field"><label for="phone">Phone</label><input id="phone" name="phone" value="{{ v.phone or '' }}" minlength="10" maxlength="15"></div>
+  <div class="full eyebrow" style="margin-top:8px">Student (subtype)</div>
+  <div class="field"><label for="roll_no">Roll number <span class="req">*</span></label><input id="roll_no" name="roll_no" value="{{ v.roll_no or '' }}" required class="mono" placeholder="2025UCS1302"></div>
+  <div class="field"><label for="branch">Branch <span class="req">*</span></label><select id="branch" name="branch" required>{% for b in C.BRANCHES %}<option value="{{ b }}" {{ 'selected' if v.branch == b }}>{{ b }}</option>{% endfor %}</select></div>
+  <div class="field"><label for="year">Year <span class="req">*</span></label><select id="year" name="year" required>{% for y in [1,2,3,4] %}<option value="{{ y }}" {{ 'selected' if (v.year or 1) | int == y }}>{{ y }}</option>{% endfor %}</select></div>
+  {% if not v.student_id %}
+  <div class="field"><label class="check" style="margin-top:26px"><input type="checkbox" name="create_account" value="1" checked> Create login (username and password = roll number)</label></div>
+  {% else %}
+  <div class="field"><label>Login</label><div class="small">{% if v.username %}<span class="mono">{{ v.username }}</span> — manage under <a href="{{ url_for('admin.accounts') }}">Accounts</a>{% else %}No account yet — create one under <a href="{{ url_for('admin.accounts') }}">Accounts</a>{% endif %}</div></div>
+  {% endif %}
+  <div class="full btn-row"><button class="btn primary">Save student</button><a class="btn ghost" href="{{ url_for('admin.students') }}">Cancel</a></div>
+</form>
+{% endblock %}

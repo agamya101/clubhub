@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Sign in{% endblock %}
+{% block body %}
+<main class="login-wrap">
+  <div class="login">
+    <div class="eyebrow">ClubHub</div>
+    <h2 style="margin:4px 0 16px">Sign in</h2>
+    {% if error %}<div class="errors" style="margin-bottom:12px">{{ error }}</div>{% endif %}
+    <form method="post" class="form">
+      <div class="field"><label for="username">Username</label><input id="username" name="username" type="text" autocomplete="username" required autofocus placeholder="Roll number, faculty id or admin"></div>
+      <div class="field"><label for="password">Password</label><input id="password" name="password" type="password" autocomplete="current-password" required></div>
+      <button class="btn primary lg" style="justify-content:center">Continue</button>
+    </form>
+    <div class="login-hint">
+      <b>Demo accounts</b><br>
+      Admin: <code>admin</code> / <code>admin123</code><br>
+      Student (club head): <code>2023UCS1001</code> / <code>2023UCS1001</code><br>
+      Student: <code>2025UCS1302</code> / <code>2025UCS1302</code><br>
+      Faculty: <code>neelam.sinha</code> / <code>faculty123</code>
+    </div>
+  </div>
+</main>
+{% endblock %}

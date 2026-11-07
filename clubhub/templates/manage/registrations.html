@@ -1,0 +1,16 @@
+{% extends "manage/_layout.html" %}
+{% from "_macros.html" import confirm_button, seat_bar %}
+{% block title %}Registrations · {{ ev.title }}{% endblock %}
+{% block panel %}
+<div class="page-head">
+  <div><div class="eyebrow">Registrations</div><h1>{{ ev.title }}</h1><div class="muted small">{{ ev.event_date | dt }} · {{ ev.venue }} · {{ seat_bar(ev) }}</div></div>
+  <div class="actions"><a class="btn" href="{{ url_for('manage.resource_edit', club_id=club.club_id, resource='events', pk=ev.event_id) }}">Edit event</a></div>
+</div>
+<div class="card flush table-wrap"><table class="data">
+  <thead><tr><th>#</th><th>Name</th><th>Roll no</th><th>Branch</th><th>Email</th><th>Registered</th><th></th></tr></thead>
+  <tbody>{% for r in rows %}
+  <tr><td class="muted">{{ loop.index }}</td><td class="strong">{{ r.name }}</td><td class="mono">{{ r.roll_no }}</td><td>{{ r.branch }}-{{ r.year }}</td><td>{{ r.email }}</td><td class="nowrap">{{ r.registered_at | dt }}</td>
+    <td class="actions">{{ confirm_button(url_for('manage.registration_remove', club_id=club.club_id, event_id=ev.event_id, student_id=r.student_id), 'Remove', 'Remove this registration?') }}</td></tr>
+  {% else %}<tr><td colspan="7" class="empty">No registrations yet.</td></tr>{% endfor %}</tbody>
+</table></div>
+{% endblock %}

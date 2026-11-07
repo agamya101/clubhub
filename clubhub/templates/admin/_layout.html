@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="panel">
+  <aside class="rail">
+    <div class="rail-title"><div class="eyebrow">Admin console</div><h3>ClubHub</h3></div>
+    {% set ep = request.endpoint %}{% set res = request.view_args.get('resource') %}
+    <nav>
+      <a href="{{ url_for('admin.dashboard') }}" class="{{ 'active' if ep == 'admin.dashboard' }}">Dashboard</a>
+      <div class="divider"></div>
+      <div class="eyebrow" style="padding:4px 12px">People</div>
+      <a href="{{ url_for('admin.students') }}" class="{{ 'active' if ep.startswith('admin.student') }}">Students</a>
+      <a href="{{ url_for('admin.faculty') }}" class="{{ 'active' if ep.startswith('admin.faculty') }}">Faculty</a>
+      <a href="{{ url_for('admin.accounts') }}" class="{{ 'active' if ep.startswith('admin.account') }}">Accounts</a>
+      <div class="divider"></div>
+      <div class="eyebrow" style="padding:4px 12px">Clubs</div>
+      <a href="{{ url_for('admin.clubs') }}" class="{{ 'active' if ep.startswith('admin.club') }}">Clubs</a>
+      <a href="{{ url_for('admin.advisors') }}" class="{{ 'active' if ep.startswith('admin.advisor') }}">Advisors</a>
+      <a href="{{ url_for('admin.memberships') }}" class="{{ 'active' if ep.startswith('admin.membership') }}">Memberships</a>
+      <div class="divider"></div>
+      <div class="eyebrow" style="padding:4px 12px">Activity</div>
+      <a href="{{ url_for('admin.resource_list', resource='events') }}" class="{{ 'active' if res == 'events' }}">Events</a>
+      <a href="{{ url_for('admin.registrations') }}" class="{{ 'active' if ep.startswith('admin.registration') }}">Registrations</a>
+      <a href="{{ url_for('admin.resource_list', resource='announcements') }}" class="{{ 'active' if res == 'announcements' }}">Announcements</a>
+      <a href="{{ url_for('admin.resource_list', resource='funding') }}" class="{{ 'active' if res == 'funding' }}">Funding</a>
+      <a href="{{ url_for('admin.resource_list', resource='assets') }}" class="{{ 'active' if res == 'assets' }}">Assets</a>
+      <a href="{{ url_for('admin.resource_list', resource='documents') }}" class="{{ 'active' if res == 'documents' }}">Documents</a>
+      <div class="divider"></div>
+      <div class="eyebrow" style="padding:4px 12px">Database</div>
+      <a href="{{ url_for('admin.schema') }}" class="{{ 'active' if ep == 'admin.schema' }}">Schema browser</a>
+      <a href="{{ url_for('admin.sql_console') }}" class="{{ 'active' if ep == 'admin.sql_console' }}">SQL console</a>
+    </nav>
+  </aside>
+  <div class="min0">{% block panel %}{% endblock %}</div>
+</div>
+{% endblock %}

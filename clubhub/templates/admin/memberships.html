@@ -1,0 +1,24 @@
+{% extends "admin/_layout.html" %}
+{% from "_macros.html" import confirm_button %}
+{% block title %}Memberships{% endblock %}
+{% block panel %}
+<div class="page-head">
+  <div><div class="eyebrow">Membership · M:N with role</div><h1>Memberships</h1></div>
+  <form method="get" class="actions"><select name="club" onchange="this.form.submit()" style="width:auto"><option value="">All clubs</option>{% for c in clubs %}<option value="{{ c.club_id }}" {{ 'selected' if active_club == c.club_id }}>{{ c.name }}</option>{% endfor %}</select></form>
+</div>
+<form method="post" action="{{ url_for('admin.membership_add') }}" class="card inline-form" style="margin-bottom:18px">
+  <div class="field"><label for="roll_no">Roll number</label><input id="roll_no" name="roll_no" class="mono" required placeholder="2025UCS1302"></div>
+  <div class="field"><label for="club_id">Club</label><select id="club_id" name="club_id">{% for c in clubs %}<option value="{{ c.club_id }}">{{ c.name }}</option>{% endfor %}</select></div>
+  <div class="field"><label for="role">Role</label><select id="role" name="role">{% for r in roles %}<option value="{{ r }}" {{ 'selected' if r == 'Member' }}>{{ r }}</option>{% endfor %}</select></div>
+  <button class="btn primary">Add</button>
+</form>
+<div class="card flush table-wrap"><table class="data">
+  <thead><tr><th>Student</th><th>Roll no</th><th>Club</th><th>Role</th><th>Joined</th><th></th></tr></thead>
+  <tbody>{% for m in rows %}
+  <tr><td class="strong">{{ m.name }}</td><td class="mono">{{ m.roll_no }}</td><td>{{ m.club_name }}</td>
+    <td><form method="post" action="{{ url_for('manage.member_role', club_id=m.club_id, student_id=m.student_id) }}"><select name="role" onchange="this.form.submit()" style="padding:4px 8px;font-size:.82rem;width:auto">{% for r in roles %}<option value="{{ r }}" {{ 'selected' if r == m.role }}>{{ r }}</option>{% endfor %}</select></form></td>
+    <td class="nowrap">{{ m.joined_at | date }}</td>
+    <td class="actions">{{ confirm_button(url_for('manage.member_remove', club_id=m.club_id, student_id=m.student_id), 'Remove', 'Remove this membership?') }}</td></tr>
+  {% endfor %}</tbody>
+</table></div>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% from "_macros.html" import club_card, event_card, notice, alert_strip %}
+{% block title %}Home{% endblock %}
+{% block content %}
+
+{% for a in alerts %}{{ alert_strip(a) }}{% endfor %}
+
+<section class="hero">
+  <div>
+    <div class="eyebrow">Student societies · one place</div>
+    <h1>Every society, every event, <em>one campus hub.</em></h1>
+    <p class="lede">Browse the societies, see what's happening this month, and register for workshops, webinars and competitions. Sign in with your roll number to join clubs and save your seat.</p>
+    <div class="btn-row" style="margin-top:14px">
+      <a class="btn primary lg" href="{{ url_for('public.events') }}">See upcoming events</a>
+      <a class="btn lg" href="{{ url_for('public.clubs') }}">Explore societies</a>
+    </div>
+  </div>
+  <div class="hero-stats">
+    <div class="stat"><div class="num">{{ stats.clubs }}</div><div class="lbl">active societies</div></div>
+    <div class="stat"><div class="num">{{ stats.upcoming }}</div><div class="lbl">upcoming events</div></div>
+    <div class="stat"><div class="num">{{ stats.students }}</div><div class="lbl">students on ClubHub</div></div>
+    <div class="stat"><div class="num">{{ stats.registrations }}</div><div class="lbl">event registrations</div></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head">
+    <h2>Coming up</h2>
+    <a href="{{ url_for('public.events') }}">All events →</a>
+  </div>
+  {% if events %}
+  <div class="grid grid-3">{% for e in events %}{{ event_card(e) }}{% endfor %}</div>
+  {% else %}<div class="card empty"><b>Nothing scheduled</b>Check back soon.</div>{% endif %}
+</section>
+
+<section class="section">
+  <div class="section-head">
+    <h2>Societies</h2>
+    <a href="{{ url_for('public.clubs') }}">Browse by category →</a>
+  </div>
+  <div class="grid auto-fill">{% for c in clubs %}{{ club_card(c) }}{% endfor %}</div>
+</section>
+
+<section class="section">
+  <div class="section-head">
+    <h2>Notice board</h2>
+    <a href="{{ url_for('public.notices') }}">All notices →</a>
+  </div>
+  <div class="card">
+    {% for n in notices %}{{ notice(n) }}{% else %}<div class="empty">No notices yet.</div>{% endfor %}
+  </div>
+</section>
+{% endblock %}

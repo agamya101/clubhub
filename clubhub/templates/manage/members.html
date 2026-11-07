@@ -1,0 +1,37 @@
+{% extends "manage/_layout.html" %}
+{% from "_macros.html" import confirm_button %}
+{% block title %}{{ club.name }} · Members{% endblock %}
+{% block panel %}
+<div class="page-head"><div><div class="eyebrow">Members</div><h1>{{ members | length }} members</h1></div></div>
+
+<form method="post" action="{{ url_for('manage.member_add', club_id=club.club_id) }}" class="card inline-form" style="margin-bottom:18px">
+  <div class="field"><label for="roll_no">Add by roll number</label><input id="roll_no" name="roll_no" placeholder="2025UCS1302" required class="mono"></div>
+  <div class="field" style="flex:0 1 180px"><label for="role">Role</label><select id="role" name="role">{% for r in roles %}<option value="{{ r }}" {{ 'selected' if r == 'Member' }}>{{ r }}</option>{% endfor %}</select></div>
+  <button class="btn primary">Add member</button>
+</form>
+
+<div class="card flush table-wrap"><table class="data">
+  <thead><tr><th>Name</th><th>Roll no</th><th>Branch</th><th>Email</th><th>Phone</th><th>Joined</th><th>Role</th><th></th></tr></thead>
+  <tbody>
+  {% for m in members %}
+  <tr>
+    <td class="strong">{{ m.name }}</td>
+    <td class="mono">{{ m.roll_no }}</td>
+    <td>{{ m.branch }}-{{ m.year }}</td>
+    <td>{{ m.email }}</td>
+    <td>{{ m.phone or '—' }}</td>
+    <td class="nowrap">{{ m.joined_at | date }}</td>
+    <td>
+      <form method="post" action="{{ url_for('manage.member_role', club_id=club.club_id, student_id=m.student_id) }}">
+        <select name="role" onchange="this.form.submit()" style="padding:4px 8px;font-size:.82rem;width:auto" aria-label="Role for {{ m.name }}">
+          {% for r in roles %}<option value="{{ r }}" {{ 'selected' if r == m.role }}>{{ r }}</option>{% endfor %}
+        </select>
+      </form>
+    </td>
+    <td class="actions">{{ confirm_button(url_for('manage.member_remove', club_id=club.club_id, student_id=m.student_id), 'Remove', 'Remove ' ~ m.name ~ ' from ' ~ club.name ~ '?') }}</td>
+  </tr>
+  {% else %}<tr><td colspan="8" class="empty">No members yet.</td></tr>{% endfor %}
+  </tbody>
+</table></div>
+<p class="tiny muted" style="margin-top:10px">A club can have exactly one President (enforced by a database trigger). Presidents and Vice Presidents get management access automatically.</p>
+{% endblock %}

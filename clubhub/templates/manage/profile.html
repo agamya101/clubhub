@@ -1,0 +1,70 @@
+{% if club %}{% extends "manage/_layout.html" %}{% else %}{% extends "admin/_layout.html" %}{% endif %}
+{% from "_macros.html" import error_list %}
+{% block title %}{{ club.name if club else 'New club' }} · Profile{% endblock %}
+{% block panel %}
+{% set v = values if values is defined else (club or {}) %}
+{% set sub = club.subtype if club and club.subtype else {} %}
+<div class="page-head"><div><div class="eyebrow">{{ 'Club profile' if club else 'Admin' }}</div><h1>{{ club.name if club else 'Create a club' }}</h1></div></div>
+
+<form method="post" class="card form cols" id="club-form">
+  {{ error_list(errors) }}
+
+  {% if is_admin() %}
+  <div class="field"><label for="name">Name <span class="req">*</span></label><input id="name" name="name" value="{{ v.name or '' }}" required></div>
+  <div class="field"><label for="category">Category <span class="req">*</span></label>
+    <select id="category" name="category" required onchange="showSubtype(this.value)">
+      {% for c in C.CLUB_CATEGORIES %}<option value="{{ c }}" {{ 'selected' if v.category == c }}>{{ c }}</option>{% endfor %}
+    </select>
+    <div class="help">Technical, Cultural and Sports clubs get extra fields (specialisation).</div>
+  </div>
+  <div class="field"><label for="status">Status</label>
+    <select id="status" name="status">{% for s in C.CLUB_STATUSES %}<option value="{{ s }}" {{ 'selected' if v.status == s }}>{{ s }}</option>{% endfor %}</select>
+  </div>
+  {% else %}
+  <div class="field"><label>Name</label><input value="{{ club.name }}" disabled><div class="help">Only admins can rename or recategorise a club.</div></div>
+  <div class="field"><label>Category</label><input value="{{ club.category }}" disabled></div>
+  {% endif %}
+
+  <div class="field"><label for="tagline">Tagline</label><input id="tagline" name="tagline" value="{{ v.tagline or '' }}" maxlength="80" placeholder="One line, shown on the card"></div>
+  <div class="field"><label for="room_no">Room</label><input id="room_no" name="room_no" value="{{ v.room_no or '' }}"></div>
+  <div class="field"><label for="founded_year">Founded</label><input id="founded_year" name="founded_year" type="number" min="1950" max="2100" value="{{ v.founded_year or '' }}"></div>
+  <div class="field"><label for="contact_email">Contact email</label><input id="contact_email" name="contact_email" type="email" value="{{ v.contact_email or '' }}"></div>
+  <div class="field full"><label for="description">Description</label><textarea id="description" name="description" rows="4">{{ v.description or '' }}</textarea></div>
+
+  {# ---- specialisation fields; shown by category ---- #}
+  <div class="full" id="sub-Technical" hidden>
+    <div class="eyebrow" style="margin-bottom:8px">Technical club details</div>
+    <div class="form cols">
+      <div class="field"><label for="tech_stack">Tech stack <span class="req">*</span></label><input id="tech_stack" name="tech_stack" value="{{ v.tech_stack or sub.tech_stack or '' }}" placeholder="Python, React, …"></div>
+      <div class="field"><label for="github_url">GitHub organisation</label><input id="github_url" name="github_url" type="url" value="{{ v.github_url or sub.github_url or '' }}"></div>
+    </div>
+  </div>
+  <div class="full" id="sub-Cultural" hidden>
+    <div class="eyebrow" style="margin-bottom:8px">Cultural club details</div>
+    <div class="field" style="max-width:320px"><label for="art_form">Art form <span class="req">*</span></label>
+      <select id="art_form" name="art_form">{% for a in C.ART_FORMS %}<option value="{{ a }}" {{ 'selected' if (v.art_form or sub.art_form) == a }}>{{ a }}</option>{% endfor %}</select></div>
+  </div>
+  <div class="full" id="sub-Sports" hidden>
+    <div class="eyebrow" style="margin-bottom:8px">Sports club details</div>
+    <div class="form cols">
+      <div class="field"><label for="sport">Sport <span class="req">*</span></label><input id="sport" name="sport" value="{{ v.sport or sub.sport or '' }}"></div>
+      <div class="field"><label for="coach_name">Coach</label><input id="coach_name" name="coach_name" value="{{ v.coach_name or sub.coach_name or '' }}"></div>
+    </div>
+  </div>
+
+  <div class="full btn-row">
+    <button class="btn primary">{{ 'Save profile' if club else 'Create club' }}</button>
+    {% if club %}<a class="btn ghost" href="{{ url_for('manage.overview', club_id=club.club_id) }}">Cancel</a>{% else %}<a class="btn ghost" href="{{ url_for('admin.clubs') }}">Cancel</a>{% endif %}
+  </div>
+</form>
+
+<script>
+  function showSubtype(cat) {
+    for (const k of ['Technical', 'Cultural', 'Sports']) {
+      const el = document.getElementById('sub-' + k); el.hidden = (k !== cat);
+      el.querySelectorAll('input,select').forEach(i => i.disabled = (k !== cat));
+    }
+  }
+  showSubtype(document.getElementById('category') ? document.getElementById('category').value : '{{ club.category if club else "" }}');
+</script>
+{% endblock %}
